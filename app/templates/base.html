@@ -9,12 +9,15 @@
 <body>
     <nav>
         <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo_intelligent_stock.png') }}" alt="Intelligent Stock" height="60"></a>
-        <a href="{{ url_for('index') }}">Home</a>
-        <a href="{{ url_for('add_product') }}">Cadastrar Produto</a>
-        <a href="{{ url_for('low_stock') }}">Estoque Baixo</a>
-        <a href="{{ url_for('expiring_soon') }}">Vencimento Próximo</a>
-        <a href="{{ url_for('inventory_report') }}">Relatório de Inventário</a>
-        <a href="{{ url_for('stock_movement_report') }}">Relatório de Movimentação</a>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('add_product') }}">Cadastrar Produto</a>
+            <a href="{{ url_for('low_stock') }}">Estoque Baixo</a>
+            <a href="{{ url_for('expiring_soon') }}">Vencimento Próximo</a>
+            <a href="{{ url_for('inventory_report') }}">Relatório de Inventário</a>
+            <a href="{{ url_for('stock_movement_report') }}">Relatório de Movimentação</a>
+        </div>
+        <button class="hamburger"><i class="fas fa-bars"></i></button>
     </nav>
     <div class="content">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -28,5 +31,15 @@
         {% endwith %}
         {% block content %}{% endblock %}
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.querySelector('.hamburger');
+            const navLinks = document.querySelector('.nav-links');
+
+            hamburger.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+        });
+    </script>
 </body>
 </html>
