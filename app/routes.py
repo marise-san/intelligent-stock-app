@@ -58,6 +58,13 @@ def index():
     thirty_days_from_now = today + timedelta(days=30)
     expiring_soon_count = Product.query.filter(Product.expiration_date.between(today, thirty_days_from_now)).count()
 
+    for product in products.items:
+        product.is_expiring_soon = False
+        if product.expiration_date:
+            time_to_expiration = product.expiration_date - today
+            if timedelta(days=0) <= time_to_expiration <= timedelta(days=30):
+                product.is_expiring_soon = True
+
     form = EditStockForm()
     return render_template('index.html', title='Home', products=products, form=form, search_query=search_query, low_stock_count=low_stock_count, expiring_soon_count=expiring_soon_count)
 

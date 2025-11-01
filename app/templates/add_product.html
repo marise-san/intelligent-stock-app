@@ -111,11 +111,11 @@
 
                 <p>
 
-                    {{ form.cost_price.label }}<br>
+                                        {{ form.cost_price.label }}<br>
 
-                    {{ form.cost_price(size=16) }}
+                                        {{ form.cost_price(size=16, type='number', step='any') }}
 
-                    {% for error in form.cost_price.errors %}
+                                        {% for error in form.cost_price.errors %}
 
                         <span style="color: red;">[{{ error }}]</span>
 
@@ -129,11 +129,11 @@
 
                 <p>
 
-                    {{ form.sale_price.label }}<br>
+                                        {{ form.sale_price.label }}<br>
 
-                    {{ form.sale_price(size=16) }}
+                                        {{ form.sale_price(size=16, type='number', step='any') }}
 
-                    {% for error in form.sale_price.errors %}
+                                        {% for error in form.sale_price.errors %}
 
                         <span style="color: red;">[{{ error }}]</span>
 

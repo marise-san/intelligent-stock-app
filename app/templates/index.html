@@ -32,6 +32,8 @@
                     <span class="stock-quantity">Estoque: <span class="quantity">{{ product.quantity }}</span></span>
                     {% if product.quantity == 0 %}
                         <span class="stock-status out-of-stock">Fora de estoque</span>
+                    {% elif product.is_expiring_soon %}
+                        <span class="stock-status expiring-soon">Vencimento Próximo</span>
                     {% elif product.quantity <= product.minimum_stock %}
                         <span class="stock-status low-stock">Estoque baixo</span>
                     {% else %}

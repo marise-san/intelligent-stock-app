@@ -6,53 +6,61 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
-<body>
-    <nav>
-        <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo_intelligent_stock.png') }}" alt="Intelligent Stock" height="60"></a>
+<body class="sidebar-open">
+    <div class="sidebar">
+        <a href="{{ url_for('index') }}" class="logo"><img src="{{ url_for('static', filename='logo_intelligent_stock.png') }}" alt="Intelligent Stock" height="60"></a>
+        {% if current_user.is_authenticated %}
+            <div class="user-info">
+                <span><i class="fas fa-user"></i> Olá, {{ current_user.username }}!</span>
+            </div>
+        {% endif %}
         <div class="nav-links">
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a>
                 {% if current_user.role == 'admin' %}
-                    <a href="{{ url_for('add_product') }}">Cadastrar Produto</a>
-                    <a href="{{ url_for('low_stock') }}">Estoque Baixo</a>
-                    <a href="{{ url_for('expiring_soon') }}">Vencimento Próximo</a>
-                    <a href="{{ url_for('inventory_report') }}">Relatório de Inventário</a>
-                    <a href="{{ url_for('stock_movement_report') }}">Relatório de Movimentação</a>
-                    <a href="{{ url_for('register') }}">Registrar Usuário</a>
-                    <a href="{{ url_for('manage_users') }}">Gerenciar Usuários</a>
+                    <a href="{{ url_for('add_product') }}"><i class="fas fa-plus"></i> Cadastrar Produto</a>
+                    <a href="{{ url_for('manage_users') }}"><i class="fas fa-users"></i> Gerenciar Usuários</a>
+                    <a href="{{ url_for('low_stock') }}"><i class="fas fa-exclamation-triangle"></i> Estoque Baixo</a>
+                    <a href="{{ url_for('expiring_soon') }}"><i class="fas fa-calendar-times"></i> Vencimento Próximo</a>
+                    <a href="{{ url_for('inventory_report') }}"><i class="fas fa-clipboard-list"></i> Relatório de Inventário</a>
+                    <a href="{{ url_for('stock_movement_report') }}"><i class="fas fa-history"></i> Relatório de Movimentação</a>
                 {% endif %}
             {% endif %}
         </div>
         <div class="nav-auth">
             {% if current_user.is_authenticated %}
-                <span>Olá, {{ current_user.username }}!</span>
-                <a href="{{ url_for('logout') }}">Sair</a>
+                <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Sair</a>
             {% else %}
-                <a href="{{ url_for('login') }}">Entrar</a>
-                <a href="{{ url_for('register') }}">Registrar</a>
+                <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Entrar</a>
+                <a href="{{ url_for('register') }}"><i class="fas fa-user-plus"></i> Registrar</a>
             {% endif %}
         </div>
-        <button class="hamburger"><i class="fas fa-bars"></i></button>
-    </nav>
-    <div class="content">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <ul class="flash-messages">
-            {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
     </div>
+    <div class="main-content">
+        <header>
+            <button class="hamburger"><i class="fas fa-bars"></i></button>
+        </header>
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <ul class="flash-messages">
+                {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const hamburger = document.querySelector('.hamburger');
-            const navLinks = document.querySelector('.nav-links');
+            const body = document.querySelector('body');
 
             hamburger.addEventListener('click', () => {
-                navLinks.classList.toggle('active');
+                body.classList.toggle('sidebar-open');
             });
         });
     </script>
