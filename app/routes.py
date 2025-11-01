@@ -124,7 +124,41 @@ def edit_stock(product_id):
             db.session.commit()
 
             print(f'Estoque do produto {product.name} atualizado para {product.quantity}')
-            return jsonify({'success': True, 'new_quantity': product.quantity})
+
+            # Recalculate status for the updated product
+            today = datetime.utcnow().date()
+            thirty_days_from_now = today + timedelta(days=30)
+
+            is_expiring_soon = False
+            if product.expiration_date:
+                time_to_expiration = product.expiration_date - today
+                if timedelta(days=0) <= time_to_expiration <= timedelta(days=30):
+                    is_expiring_soon = True
+
+            stock_status_text = ""
+            stock_status_class = ""
+            if product.quantity == 0:
+                stock_status_text = "Fora de estoque"
+                stock_status_class = "out-of-stock"
+            elif is_expiring_soon:
+                stock_status_text = "Vencimento Próximo"
+                stock_status_class = "expiring-soon"
+            elif product.quantity <= product.minimum_stock:
+                stock_status_text = "Estoque baixo"
+                stock_status_class = "low-stock"
+            else:
+                stock_status_text = "Em estoque"
+                stock_status_class = "in-stock"
+
+            return jsonify({
+                'success': True,
+                'new_quantity': product.quantity,
+                'minimum_stock': product.minimum_stock,
+                'expiration_date': product.expiration_date.isoformat() if product.expiration_date else None,
+                'is_expiring_soon': is_expiring_soon,
+                'stock_status_text': stock_status_text,
+                'stock_status_class': stock_status_class
+            })
         except Exception as e:
             logging.error(f'Erro ao atualizar estoque: {e}')
             return jsonify({'success': False, 'error': 'Erro ao atualizar estoque.'})

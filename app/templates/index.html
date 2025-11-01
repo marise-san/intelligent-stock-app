@@ -132,6 +132,12 @@
                         var productId = url.split('/').pop();
                         var card = document.getElementById('product-' + productId);
                         card.querySelector('.quantity').textContent = data.new_quantity;
+
+                        var stockStatusSpan = card.querySelector('.stock-status');
+                        if (stockStatusSpan) {
+                            stockStatusSpan.className = 'stock-status ' + data.stock_status_class;
+                            stockStatusSpan.textContent = data.stock_status_text;
+                        }
                         modal.style.display = 'none';
                     } else {
                         if (data.errors && data.errors.quantity) {
