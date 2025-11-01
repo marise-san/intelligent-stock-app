@@ -422,6 +422,12 @@ form input[type="submit"]:hover {
     background-color: #1a447a;
 }
 
+td form {
+    background: none;
+    padding: 0;
+    box-shadow: none;
+}
+
 .submit-p {
     text-align: center;
 }
