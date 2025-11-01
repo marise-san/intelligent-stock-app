@@ -1,0 +1,149 @@
+from flask import render_template, flash, redirect, url_for, jsonify, request
+from app import app, db
+from app.models.product import Product, CategoryEnum
+from app.models.stock_movement import StockMovement
+from app.forms import AddProductForm, EditStockForm, EditProductForm
+import logging
+from datetime import datetime, timedelta
+
+@app.route('/')
+@app.route('/index')
+def index():
+    page = request.args.get('page', 1, type=int)
+    search_query = request.args.get('search', '')
+    query = Product.query
+    if search_query:
+        query = query.filter(Product.name.contains(search_query) | Product.barcode.contains(search_query))
+    products = query.paginate(page=page, per_page=12)
+
+    low_stock_count = Product.query.filter(Product.quantity <= Product.minimum_stock).count()
+    today = datetime.utcnow().date()
+    thirty_days_from_now = today + timedelta(days=30)
+    expiring_soon_count = Product.query.filter(Product.expiration_date.between(today, thirty_days_from_now)).count()
+
+    form = EditStockForm()
+    return render_template('index.html', title='Home', products=products, form=form, search_query=search_query, low_stock_count=low_stock_count, expiring_soon_count=expiring_soon_count)
+
+@app.route('/add_product', methods=['GET', 'POST'])
+def add_product():
+    form = AddProductForm()
+    if form.validate_on_submit():
+        try:
+            product = Product(
+                barcode=form.barcode.data,
+                name=form.name.data,
+                description=form.description.data,
+                category=CategoryEnum[form.category.data],
+                supplier=form.supplier.data,
+                cost_price=form.cost_price.data,
+                sale_price=form.sale_price.data,
+                unit_of_measure=form.unit_of_measure.data,
+                minimum_stock=form.minimum_stock.data,
+                expiration_date=form.expiration_date.data,
+                quantity=form.quantity.data
+            )
+            db.session.add(product)
+            db.session.commit()
+
+            movement = StockMovement(product_id=product.id, quantity=product.quantity, movement_type='entrada')
+            db.session.add(movement)
+            db.session.commit()
+
+            flash('Produto cadastrado com sucesso!', 'success')
+            print(f'Produto cadastrado: {product}')
+            return redirect(url_for('index'))
+        except Exception as e:
+            logging.error(f'Erro ao cadastrar produto: {e}')
+            flash('Erro ao cadastrar produto.', 'error')
+    else:
+        if form.errors:
+            logging.error(f'Erros no formulário: {form.errors}')
+            print(f'Erros no formulário: {form.errors}')
+    return render_template('add_product.html', title='Cadastrar Produto', form=form)
+
+@app.route('/edit_stock/<int:product_id>', methods=['POST'])
+def edit_stock(product_id):
+    product = Product.query.get_or_404(product_id)
+    form = EditStockForm()
+    if form.validate_on_submit():
+        try:
+            old_quantity = product.quantity
+            product.quantity = form.quantity.data
+            db.session.commit()
+
+            quantity_diff = product.quantity - old_quantity
+            movement = StockMovement(product_id=product.id, quantity=quantity_diff, movement_type='ajuste')
+            db.session.add(movement)
+            db.session.commit()
+
+            print(f'Estoque do produto {product.name} atualizado para {product.quantity}')
+            return jsonify({'success': True, 'new_quantity': product.quantity})
+        except Exception as e:
+            logging.error(f'Erro ao atualizar estoque: {e}')
+            return jsonify({'success': False, 'error': 'Erro ao atualizar estoque.'})
+    return jsonify({'success': False, 'errors': form.errors})
+
+@app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
+def edit_product(product_id):
+    product = Product.query.get_or_404(product_id)
+    form = EditProductForm(obj=product)
+    if form.validate_on_submit():
+        try:
+            product.name = form.name.data
+            product.description = form.description.data
+            product.category = CategoryEnum[form.category.data]
+            product.supplier = form.supplier.data
+            product.cost_price = form.cost_price.data
+            product.sale_price = form.sale_price.data
+            product.minimum_stock = form.minimum_stock.data
+            product.expiration_date = form.expiration_date.data
+            db.session.commit()
+            flash('Produto atualizado com sucesso!', 'success')
+            print(f'Produto {product.name} atualizado.')
+            return redirect(url_for('index'))
+        except Exception as e:
+            logging.error(f'Erro ao atualizar produto: {e}')
+            flash('Erro ao atualizar produto.', 'error')
+    return render_template('edit_product.html', title='Editar Produto', form=form, product=product)
+
+@app.route('/delete_product/<int:product_id>', methods=['POST'])
+def delete_product(product_id):
+    product = Product.query.get_or_404(product_id)
+    try:
+        quantity = product.quantity
+        db.session.delete(product)
+        db.session.commit()
+
+        movement = StockMovement(product_id=product.id, quantity=-quantity, movement_type='saída')
+        db.session.add(movement)
+        db.session.commit()
+
+        flash('Produto excluído com sucesso!', 'success')
+        print(f'Produto {product.name} excluído.')
+        return jsonify({'success': True})
+    except Exception as e:
+        logging.error(f'Erro ao excluir produto: {e}')
+        return jsonify({'success': False, 'error': 'Erro ao excluir produto.'})
+
+@app.route('/low_stock')
+def low_stock():
+    products = Product.query.filter(Product.quantity <= Product.minimum_stock).all()
+    return render_template('low_stock.html', title='Estoque Baixo', products=products)
+
+@app.route('/expiring_soon')
+def expiring_soon():
+    today = datetime.utcnow().date()
+    thirty_days_from_now = today + timedelta(days=30)
+    products = Product.query.filter(Product.expiration_date.between(today, thirty_days_from_now)).all()
+    return render_template('expiring_soon.html', title='Vencimento Próximo', products=products)
+
+@app.route('/inventory_report')
+def inventory_report():
+    products = Product.query.all()
+    return render_template('inventory_report.html', title='Relatório de Inventário', products=products)
+
+@app.route('/stock_movement_report')
+def stock_movement_report():
+    page = request.args.get('page', 1, type=int)
+    movements = db.session.query(StockMovement, Product).join(Product).order_by(StockMovement.timestamp.desc()).paginate(page=page, per_page=20)
+    return render_template('stock_movement_report.html', title='Relatório de Movimentação de Estoque', movements=movements)

@@ -1,0 +1,32 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }} - Estoque</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo_intelligent_stock.png') }}" alt="Intelligent Stock" height="60"></a>
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('add_product') }}">Cadastrar Produto</a>
+        <a href="{{ url_for('low_stock') }}">Estoque Baixo</a>
+        <a href="{{ url_for('expiring_soon') }}">Vencimento Próximo</a>
+        <a href="{{ url_for('inventory_report') }}">Relatório de Inventário</a>
+        <a href="{{ url_for('stock_movement_report') }}">Relatório de Movimentação</a>
+    </nav>
+    <div class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class="flash-messages">
+            {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Relatório de Movimentação de Estoque</h1>
+        <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i> Voltar</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Produto</th>
+                <th>Tipo de Movimentação</th>
+                <th>Quantidade</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movement, product in movements.items %}
+                <tr>
+                    <td>{{ movement.timestamp.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ movement.movement_type }}</td>
+                    <td>{{ movement.quantity }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4">Nenhuma movimentação de estoque registrada.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        {% if movements.has_prev %}
+            <a href="{{ url_for('stock_movement_report', page=movements.prev_num) }}">&laquo; Anterior</a>
+        {% endif %}
+        {% for page_num in movements.iter_pages() %}
+            {% if page_num %}
+                {% if movements.page == page_num %}
+                    <a class="active" href="{{ url_for('stock_movement_report', page=page_num) }}">{{ page_num }}</a>
+                {% else %}
+                    <a href="{{ url_for('stock_movement_report', page=page_num) }}">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                <span class="ellipsis">...</span>
+            {% endif %}
+        {% endfor %}
+        {% if movements.has_next %}
+            <a href="{{ url_for('stock_movement_report', page=movements.next_num) }}">Próxima &raquo;</a>
+        {% endif %}
+    </div>
+{% endblock %}

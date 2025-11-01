@@ -1,0 +1,22 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Editar Estoque do Produto: {{ product.name }}</h1>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div class="col-4">
+                <p>
+                    {{ form.quantity.label }}<br>
+                    {{ form.quantity(size=16) }}
+                    {% for error in form.quantity.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+

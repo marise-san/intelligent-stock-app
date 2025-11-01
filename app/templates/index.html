@@ -1,0 +1,174 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="dashboard">
+        <a href="{{ url_for('low_stock') }}" class="dashboard-card">
+            <h3>Estoque Baixo</h3>
+            <p>{{ low_stock_count }}</p>
+        </a>
+        <a href="{{ url_for('expiring_soon') }}" class="dashboard-card">
+            <h3>Vencimento Próximo</h3>
+            <p>{{ expiring_soon_count }}</p>
+        </a>
+    </div>
+
+    <h1>Estoque</h1>
+
+    <form method="get" action="{{ url_for('index') }}">
+        <div class="search-bar">
+            <input type="text" name="search" placeholder="Buscar por nome ou código de barras" value="{{ search_query }}">
+            <button type="submit"><i class="fas fa-search"></i></button>
+        </div>
+    </form>
+
+    <div class="product-grid">
+        {% for product in products.items %}
+            <div class="product-card" id="product-{{ product.id }}">
+                <h3>{{ product.name }}</h3>
+                <p class="barcode">{{ product.barcode }}</p>
+                <p class="price">R$ {{ "%.2f"|format(product.sale_price) }}</p>
+                <div class="stock-info">
+                    <span class="stock-quantity">Estoque: <span class="quantity">{{ product.quantity }}</span></span>
+                    {% if product.quantity == 0 %}
+                        <span class="stock-status out-of-stock">Fora de estoque</span>
+                    {% elif product.quantity <= product.minimum_stock %}
+                        <span class="stock-status low-stock">Estoque baixo</span>
+                    {% else %}
+                        <span class="stock-status in-stock">Em estoque</span>
+                    {% endif %}
+                </div>
+                <div class="actions">
+                    <a href="{{ url_for('edit_product', product_id=product.id) }}" class="edit-btn" title="Editar produto"><i class="fas fa-pencil-alt"></i> Editar</a>
+                    <button class="stock-btn edit-stock-btn" data-id="{{ product.id }}" data-quantity="{{ product.quantity }}" title="Editar estoque"><i class="fas fa-box"></i> Estoque</button>
+                    <button class="delete-btn" data-id="{{ product.id }}" title="Excluir produto"><i class="fas fa-trash-alt"></i> Excluir</button>
+                </div>
+            </div>
+        {% else %}
+            <p>Nenhum produto encontrado.</p>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        {% if products.has_prev %}
+            <a href="{{ url_for('index', page=products.prev_num, search=search_query) }}">&laquo; Anterior</a>
+        {% endif %}
+        {% for page_num in products.iter_pages() %}
+            {% if page_num %}
+                {% if products.page == page_num %}
+                    <a class="active" href="{{ url_for('index', page=page_num, search=search_query) }}">{{ page_num }}</a>
+                {% else %}
+                    <a href="{{ url_for('index', page=page_num, search=search_query) }}">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                <span class="ellipsis">...</span>
+            {% endif %}
+        {% endfor %}
+        {% if products.has_next %}
+            <a href="{{ url_for('index', page=products.next_num, search=search_query) }}">Próxima &raquo;</a>
+        {% endif %}
+    </div>
+
+    <div id="editStockModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Editar Estoque</h2>
+            <form id="editStockForm" method="post">
+                {{ form.hidden_tag() }}
+                <p>
+                    {{ form.quantity.label }}<br>
+                    {{ form.quantity(size=16) }}
+                    <span id="quantity_error" style="color: red;"></span>
+                </p>
+                <p>{{ form.submit() }}</p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var modal = document.getElementById('editStockModal');
+            var span = document.getElementsByClassName("close")[0];
+
+            document.querySelectorAll('.edit-stock-btn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    var productId = this.dataset.id;
+                    var quantity = this.dataset.quantity;
+                    var form = document.getElementById('editStockForm');
+                    form.action = '/edit_stock/' + productId;
+                    form.quantity.value = quantity;
+                    modal.style.display = 'block';
+                });
+            });
+
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            document.getElementById('editStockForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var form = this;
+                var url = form.action;
+                var formData = new FormData(form);
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': form.csrf_token.value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        var productId = url.split('/').pop();
+                        var card = document.getElementById('product-' + productId);
+                        card.querySelector('.quantity').textContent = data.new_quantity;
+                        modal.style.display = 'none';
+                    } else {
+                        if (data.errors && data.errors.quantity) {
+                            document.getElementById('quantity_error').textContent = data.errors.quantity.join(', ');
+                        } else if (data.error) {
+                            alert(data.error);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    if (confirm('Tem certeza que deseja excluir este produto?')) {
+                        var productId = this.dataset.id;
+                        fetch('/delete_product/' + productId, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': document.querySelector('#editStockForm input[name="csrf_token"]').value
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('product-' + productId).remove();
+                            } else {
+                                alert(data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
