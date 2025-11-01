@@ -2,12 +2,49 @@ from flask import render_template, flash, redirect, url_for, jsonify, request
 from app import app, db
 from app.models.product import Product, CategoryEnum
 from app.models.stock_movement import StockMovement
-from app.forms import AddProductForm, EditStockForm, EditProductForm
+from app.models.user import User
+from app.forms import AddProductForm, EditStockForm, EditProductForm, LoginForm, RegistrationForm
 import logging
 from datetime import datetime, timedelta
+from flask_login import current_user, login_user, logout_user, login_required
+from app.decorators import admin_required
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('Usuário ou senha inválidos', 'error')
+            return redirect(url_for('login'))
+        login_user(user, remember=True)
+        return redirect(url_for('index'))
+    return render_template('login.html', title='Entrar', form=form)
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/register', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Usuário registrado com sucesso!', 'success')
+        return redirect(url_for('manage_users'))
+    return render_template('register.html', title='Registrar', form=form)
 
 @app.route('/')
 @app.route('/index')
+@login_required
 def index():
     page = request.args.get('page', 1, type=int)
     search_query = request.args.get('search', '')
@@ -25,6 +62,8 @@ def index():
     return render_template('index.html', title='Home', products=products, form=form, search_query=search_query, low_stock_count=low_stock_count, expiring_soon_count=expiring_soon_count)
 
 @app.route('/add_product', methods=['GET', 'POST'])
+@login_required
+@admin_required
 def add_product():
     form = AddProductForm()
     if form.validate_on_submit():
@@ -62,6 +101,7 @@ def add_product():
     return render_template('add_product.html', title='Cadastrar Produto', form=form)
 
 @app.route('/edit_stock/<int:product_id>', methods=['POST'])
+@login_required
 def edit_stock(product_id):
     product = Product.query.get_or_404(product_id)
     form = EditStockForm()
@@ -84,6 +124,8 @@ def edit_stock(product_id):
     return jsonify({'success': False, 'errors': form.errors})
 
 @app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
 def edit_product(product_id):
     product = Product.query.get_or_404(product_id)
     form = EditProductForm(obj=product)
@@ -107,6 +149,8 @@ def edit_product(product_id):
     return render_template('edit_product.html', title='Editar Produto', form=form, product=product)
 
 @app.route('/delete_product/<int:product_id>', methods=['POST'])
+@login_required
+@admin_required
 def delete_product(product_id):
     product = Product.query.get_or_404(product_id)
     try:
@@ -126,11 +170,15 @@ def delete_product(product_id):
         return jsonify({'success': False, 'error': 'Erro ao excluir produto.'})
 
 @app.route('/low_stock')
+@login_required
+@admin_required
 def low_stock():
     products = Product.query.filter(Product.quantity <= Product.minimum_stock).all()
     return render_template('low_stock.html', title='Estoque Baixo', products=products)
 
 @app.route('/expiring_soon')
+@login_required
+@admin_required
 def expiring_soon():
     today = datetime.utcnow().date()
     thirty_days_from_now = today + timedelta(days=30)
@@ -138,12 +186,50 @@ def expiring_soon():
     return render_template('expiring_soon.html', title='Vencimento Próximo', products=products)
 
 @app.route('/inventory_report')
+@login_required
+@admin_required
 def inventory_report():
     products = Product.query.all()
     return render_template('inventory_report.html', title='Relatório de Inventário', products=products)
 
 @app.route('/stock_movement_report')
+@login_required
+@admin_required
 def stock_movement_report():
     page = request.args.get('page', 1, type=int)
     movements = db.session.query(StockMovement, Product).join(Product).order_by(StockMovement.timestamp.desc()).paginate(page=page, per_page=20)
     return render_template('stock_movement_report.html', title='Relatório de Movimentação de Estoque', movements=movements)
+
+@app.route('/manage_users')
+@login_required
+@admin_required
+def manage_users():
+    users = User.query.all()
+    return render_template('manage_users.html', title='Gerenciar Usuários', users=users)
+
+@app.route('/change_role/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def change_role(user_id):
+    user = User.query.get_or_404(user_id)
+    new_role = request.form.get('role')
+    if new_role in ['admin', 'operador']:
+        user.role = new_role
+        db.session.commit()
+        flash(f'O papel do usuário {user.username} foi alterado para {new_role}.', 'success')
+    else:
+        flash('Papel inválido.', 'error')
+    return redirect(url_for('manage_users'))
+
+@app.route('/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        flash('Você não pode excluir a si mesmo.', 'error')
+        return redirect(url_for('manage_users'))
+    db.session.delete(user)
+    db.session.commit()
+    flash(f'Usuário {user.username} excluído com sucesso.', 'success')
+    return redirect(url_for('manage_users'))

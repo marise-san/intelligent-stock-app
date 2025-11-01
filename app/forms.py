@@ -1,7 +1,19 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, IntegerField, DateField, SubmitField, SelectField
-from wtforms.validators import DataRequired
+from wtforms import StringField, FloatField, IntegerField, DateField, SubmitField, SelectField, PasswordField
+from wtforms.validators import DataRequired, EqualTo
 from app.models.product import CategoryEnum
+
+class LoginForm(FlaskForm):
+    username = StringField('Usuário', validators=[DataRequired()])
+    password = PasswordField('Senha', validators=[DataRequired()])
+    submit = SubmitField('Entrar')
+
+class RegistrationForm(FlaskForm):
+    username = StringField('Usuário', validators=[DataRequired()])
+    password = PasswordField('Senha', validators=[DataRequired()])
+    password2 = PasswordField(
+        'Repita a Senha', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Registrar')
 
 class AddProductForm(FlaskForm):
     barcode = StringField('Código de Barras', validators=[DataRequired()])

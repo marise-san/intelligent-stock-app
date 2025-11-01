@@ -276,27 +276,36 @@ tbody tr:hover {
     font-size: 0.9rem;
 }
 
-.product-card .actions .edit-btn {
+.edit-btn {
     background-color: var(--primary-color);
 }
 
-.product-card .actions .edit-btn:hover {
+.edit-btn:hover {
     background-color: #1a447a;
 }
 
-.product-card .actions .stock-btn {
+.stock-btn {
     background-color: var(--secondary-color);
 }
 
-.product-card .actions .stock-btn:hover {
+.stock-btn:hover {
     background-color: #0f8a61;
 }
 
-.product-card .actions .delete-btn {
+.delete-btn {
     background-color: #dc3545;
+    color: #fff;
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    font-size: 0.9rem;
 }
 
-.product-card .actions .delete-btn:hover {
+.delete-btn:hover {
     background-color: #c82333;
 }
 
@@ -377,6 +386,7 @@ form label {
 form input[type="text"],
 form input[type="number"],
 form input[type="date"],
+form input[type="password"],
 form select {
     width: 100%;
     padding: 0.8rem 1rem;
@@ -412,6 +422,22 @@ form input[type="submit"]:hover {
     background-color: #1a447a;
 }
 
+.submit-p {
+    text-align: center;
+}
+
+.new-user-link {
+    text-align: center;
+}
+
+.flash-messages {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem 0;
+    text-align: center;
+}
+
+
 .modal {
     display: none; 
     position: fixed; 
@@ -444,8 +470,51 @@ form input[type="submit"]:hover {
 }
 
 .close:hover,
+
 .close:focus {
+
     color: #333;
+
     text-decoration: none;
+
     cursor: pointer;
+
+}
+
+
+
+.form-container {
+
+    max-width: 400px;
+
+    margin: 2rem auto;
+
+    padding: 2rem;
+
+    background: var(--card-background-color);
+
+    border-radius: 8px;
+
+    box-shadow: 0 4px 12px var(--shadow-color);
+
+}
+
+
+
+.nav-auth {
+
+    margin-left: auto;
+
+    display: flex;
+
+    align-items: center;
+
+}
+
+
+
+.nav-auth span {
+
+    margin-right: 1rem;
+
 }

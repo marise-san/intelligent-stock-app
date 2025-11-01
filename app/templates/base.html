@@ -10,12 +10,27 @@
     <nav>
         <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo_intelligent_stock.png') }}" alt="Intelligent Stock" height="60"></a>
         <div class="nav-links">
-            <a href="{{ url_for('index') }}">Home</a>
-            <a href="{{ url_for('add_product') }}">Cadastrar Produto</a>
-            <a href="{{ url_for('low_stock') }}">Estoque Baixo</a>
-            <a href="{{ url_for('expiring_soon') }}">Vencimento Próximo</a>
-            <a href="{{ url_for('inventory_report') }}">Relatório de Inventário</a>
-            <a href="{{ url_for('stock_movement_report') }}">Relatório de Movimentação</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('index') }}">Home</a>
+                {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('add_product') }}">Cadastrar Produto</a>
+                    <a href="{{ url_for('low_stock') }}">Estoque Baixo</a>
+                    <a href="{{ url_for('expiring_soon') }}">Vencimento Próximo</a>
+                    <a href="{{ url_for('inventory_report') }}">Relatório de Inventário</a>
+                    <a href="{{ url_for('stock_movement_report') }}">Relatório de Movimentação</a>
+                    <a href="{{ url_for('register') }}">Registrar Usuário</a>
+                    <a href="{{ url_for('manage_users') }}">Gerenciar Usuários</a>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="nav-auth">
+            {% if current_user.is_authenticated %}
+                <span>Olá, {{ current_user.username }}!</span>
+                <a href="{{ url_for('logout') }}">Sair</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Entrar</a>
+                <a href="{{ url_for('register') }}">Registrar</a>
+            {% endif %}
         </div>
         <button class="hamburger"><i class="fas fa-bars"></i></button>
     </nav>

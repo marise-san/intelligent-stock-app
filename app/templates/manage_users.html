@@ -1,0 +1,40 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Gerenciar Usuários</h1>
+        <a href="{{ url_for('register') }}" class="back-btn"><i class="fas fa-plus"></i> Adicionar Usuário</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Usuário</th>
+                <th>Papel</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>
+                        <form action="{{ url_for('change_role', user_id=user.id) }}" method="post">
+                            <select name="role" onchange="this.form.submit()">
+                                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                                <option value="operador" {% if user.role == 'operador' %}selected{% endif %}>Operador</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        {% if user.id != current_user.id %}
+                            <form action="{{ url_for('delete_user', user_id=user.id) }}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');">
+                                <button type="submit" class="delete-btn"><i class="fas fa-trash-alt"></i> Excluir</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
