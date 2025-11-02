@@ -29,17 +29,18 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/register', methods=['GET', 'POST'])
-@login_required
-@admin_required
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(username=form.username.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Usuário registrado com sucesso!', 'success')
-        return redirect(url_for('manage_users'))
+        flash('Parabéns, você foi registrado com sucesso!', 'success')
+        login_user(user)
+        return redirect(url_for('index'))
     return render_template('register.html', title='Registrar', form=form)
 
 @app.route('/')
