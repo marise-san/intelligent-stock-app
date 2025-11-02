@@ -18,6 +18,10 @@ body {
     color: var(--text-color);
 }
 
+body.sidebar-open {
+    overflow: hidden;
+}
+
 .sidebar {
     width: var(--sidebar-width);
     background-color: #191919;
@@ -30,6 +34,7 @@ body {
     height: 100%;
     transition: left 0.3s ease;
     z-index: 1000;
+    overflow-y: auto;
 }
 
 .sidebar-open .sidebar {
@@ -54,12 +59,10 @@ body {
 }
 
 .sidebar .nav-links {
-    flex-grow: 1;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     padding: 1rem 0;
-    overflow-y: auto;
 }
 
 .sidebar .nav-links a {
@@ -80,12 +83,12 @@ body {
 
 
 .sidebar .nav-auth {
-    margin-top: auto;
     padding: 1.5rem;
     border-top: 1px solid #444;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 .sidebar .nav-auth span {
@@ -114,7 +117,7 @@ body {
 }
 
 header {
-    background-color: var(--card-background-color);
+    background-color: #191919;
     padding: 1rem 2rem;
     box-shadow: 0 2px 4px var(--shadow-color);
     display: flex;
@@ -124,7 +127,7 @@ header {
 .hamburger {
     background: none;
     border: none;
-    color: var(--primary-color);
+    color: #fff;
     font-size: 1.5rem;
     cursor: pointer;
 }
@@ -635,4 +638,87 @@ td form {
     background: none;
     padding: 0;
     box-shadow: none;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    border-top: 1px solid var(--border-color);
+}
+
+.bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    padding: 0.5rem 0;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 0.7rem;
+    transition: color 0.3s ease;
+}
+
+.bottom-nav a:hover {
+    color: var(--primary-color);
+}
+
+.bottom-nav a i {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Mobile improvements */
+@media (max-width: 768px) {
+    .sidebar-open .sidebar {
+        width: 100%;
+    }
+
+    .main-content {
+        padding-left: 0 !important; /* Remove padding from main content */
+        padding-bottom: 70px; /* Add padding to the bottom to avoid overlap with bottom nav */
+    }
+
+    .content {
+        padding: 1rem;
+    }
+
+    .bottom-nav {
+        display: flex;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr; /* Single column for product grid */
+    }
+}
+
+.header-logo {
+    display: block;
+    height: 40px;
+    margin-left: 1rem;
+}
+
+.header-logo img {
+    height: 100%;
+}
+
+.sidebar-open .header-logo {
+    display: none;
 }

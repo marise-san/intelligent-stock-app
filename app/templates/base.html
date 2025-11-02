@@ -2,11 +2,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }} - Estoque</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
-<body class="{% block body_class %}sidebar-open{% endblock %}">
+<body class="{% block body_class %}{% endblock %}">
     {% block sidebar %}
     <div class="sidebar">
         <a href="{{ url_for('index') }}" class="logo"><img src="{{ url_for('static', filename='nav-logo.svg') }}" alt="Intelligent Stock" height="60"></a>
@@ -42,6 +43,7 @@
         <header>
             {% if current_user.is_authenticated %}
             <button class="hamburger"><i class="fas fa-bars"></i></button>
+            <a href="{{ url_for('index') }}" class="header-logo"><img src="{{ url_for('static', filename='nav-logo.svg') }}" alt="Intelligent Stock"></a>
             {% endif %}
         </header>
         <div class="content">
@@ -70,5 +72,16 @@
             }
         });
     </script>
+
+    {% if current_user.is_authenticated %}
+    <div class="bottom-nav">
+        <a href="{{ url_for('index') }}"><i class="fas fa-home"></i><span>Home</span></a>
+        {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('add_product') }}"><i class="fas fa-plus"></i><span>Cadastrar</span></a>
+            <a href="{{ url_for('manage_users') }}"><i class="fas fa-users"></i><span>Usuários</span></a>
+            <a href="{{ url_for('low_stock') }}"><i class="fas fa-exclamation-triangle"></i><span>Estoque Baixo</span></a>
+        {% endif %}
+    </div>
+    {% endif %}
 </body>
 </html>
