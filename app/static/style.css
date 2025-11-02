@@ -20,7 +20,7 @@ body {
 
 .sidebar {
     width: var(--sidebar-width);
-    background-color: var(--card-background-color);
+    background-color: #191919;
     box-shadow: 2px 0 5px var(--shadow-color);
     display: flex;
     flex-direction: column;
@@ -49,7 +49,8 @@ body {
 .sidebar .user-info {
     padding: 0 1.5rem 1.5rem 1.5rem;
     text-align: center;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid #444;
+    color: #fff;
 }
 
 .sidebar .nav-links {
@@ -65,7 +66,7 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    color: var(--text-color);
+    color: #fff;
     text-decoration: none;
     padding: 0.8rem 1.5rem;
     border-radius: 6px;
@@ -73,7 +74,7 @@ body {
 }
 
 .sidebar .nav-links a:hover {
-    background-color: var(--primary-color);
+    background-color: #333;
     color: #fff;
 }
 
@@ -81,7 +82,7 @@ body {
 .sidebar .nav-auth {
     margin-top: auto;
     padding: 1.5rem;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid #444;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -98,7 +99,7 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    color: var(--text-color);
+    color: #fff;
     text-decoration: none;
 }
 
