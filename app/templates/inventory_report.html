@@ -25,7 +25,7 @@
                 <tr>
                     <td>{{ product.barcode }}</td>
                     <td>{{ product.name }}</td>
-                    <td>{{ product.category }}</td>
+                    <td>{{ product.category.value }}</td>
                     <td>{{ product.quantity }}</td>
                     <td>R$ {{ "%.2f"|format(product.cost_price) }}</td>
                     <td>R$ {{ "%.2f"|format(product.sale_price) }}</td>
