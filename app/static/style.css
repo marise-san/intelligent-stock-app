@@ -596,10 +596,6 @@ td form {
 .form-container {
     width: 100%;
     max-width: 450px;
-    padding: 2rem;
-    background: var(--card-background-color);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .auth-container {
@@ -632,4 +628,10 @@ td form {
     .auth-form-section {
         width: 100%;
     }
+}
+
+.auth-form-section form {
+    background: none;
+    padding: 0;
+    box-shadow: none;
 }
