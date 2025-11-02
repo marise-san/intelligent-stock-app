@@ -647,7 +647,7 @@ td form {
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: #fff;
+    background-color: #191919;
     box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
     z-index: 1000;
     border-top: 1px solid var(--border-color);
@@ -660,7 +660,7 @@ td form {
     justify-content: center;
     flex-grow: 1;
     padding: 0.5rem 0;
-    color: var(--text-color);
+    color: #fff;
     text-decoration: none;
     font-size: 0.7rem;
     transition: color 0.3s ease;
