@@ -6,7 +6,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
-<body class="sidebar-open">
+<body class="{% block body_class %}sidebar-open{% endblock %}">
+    {% block sidebar %}
     <div class="sidebar">
         <a href="{{ url_for('index') }}" class="logo"><img src="{{ url_for('static', filename='logo_intelligent_stock.png') }}" alt="Intelligent Stock" height="60"></a>
         {% if current_user.is_authenticated %}
@@ -36,9 +37,12 @@
             {% endif %}
         </div>
     </div>
+    {% endblock %}
     <div class="main-content">
         <header>
+            {% if current_user.is_authenticated %}
             <button class="hamburger"><i class="fas fa-bars"></i></button>
+            {% endif %}
         </header>
         <div class="content">
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -59,9 +63,11 @@
             const hamburger = document.querySelector('.hamburger');
             const body = document.querySelector('body');
 
-            hamburger.addEventListener('click', () => {
-                body.classList.toggle('sidebar-open');
-            });
+            if (hamburger) {
+                hamburger.addEventListener('click', () => {
+                    body.classList.toggle('sidebar-open');
+                });
+            }
         });
     </script>
 </body>
