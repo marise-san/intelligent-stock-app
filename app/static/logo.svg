@@ -1,0 +1,22 @@
+<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(23,37) scale(1.5)"> 
+    
+    <g id="base-left-cube" transform="translate(-2,12)">
+      <polygon points="0,0 -10,-5 -10,-15 0,-10" fill="#163660"/> 
+      <polygon points="0,0 10,-5 10,-15 0,-10" fill="#163660"/> 
+      <polygon points="-10,-15 0,-20 10,-15 0,-10" fill="#163660"/> 
+    </g>
+
+    <g id="base-right-cube" transform="translate(12,12)">
+      <polygon points="0,0 -10,-5 -10,-15 0,-10" fill="#163660"/> 
+      <polygon points="0,0 10,-5 10,-15 0,-10" fill="#163660"/> 
+      <polygon points="-10,-15 0,-20 10,-15 0,-10" fill="#163660"/> 
+    </g>
+
+    <g id="top-cube" transform="translate(5,0)"> 
+      <polygon points="0,0 -10,-5 -10,-15 0,-10" fill="#12a573"/> 
+      <polygon points="0,0 10,-5 10,-15 0,-10" fill="#12a573"/> 
+      <polygon points="-10,-15 0,-20 10,-15 0,-10" fill="#12a573"/> 
+    </g>
+  </g>
+</svg>

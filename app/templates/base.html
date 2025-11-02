@@ -9,7 +9,7 @@
 <body class="{% block body_class %}sidebar-open{% endblock %}">
     {% block sidebar %}
     <div class="sidebar">
-        <a href="{{ url_for('index') }}" class="logo"><img src="{{ url_for('static', filename='logo_intelligent_stock.png') }}" alt="Intelligent Stock" height="60"></a>
+        <a href="{{ url_for('index') }}" class="logo"><img src="{{ url_for('static', filename='nav-logo.svg') }}" alt="Intelligent Stock" height="60"></a>
         {% if current_user.is_authenticated %}
             <div class="user-info">
                 <span><i class="fas fa-user"></i> Olá, {{ current_user.username }}!</span>

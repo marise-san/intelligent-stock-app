@@ -6,6 +6,9 @@
 
 {% block content %}
     <div class="form-container">
+        <div style="text-align: center;">
+            <img src="{{ url_for('static', filename='logo.svg') }}" alt="Intelligent Stock Logo" class="login-logo" style="width: 100px; margin-bottom: 20px;">
+        </div>
         <form action="" method="post" novalidate>
             <h1>Registrar</h1>
             {{ form.hidden_tag() }}
